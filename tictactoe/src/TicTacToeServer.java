@@ -42,12 +42,26 @@ public class TicTacToeServer {
     private void handleRequest(Socket socket) throws IOException{
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        out.println("Welcome");
+        out.println("Welcome to tic tac toe");
         try{
             for(String line = in.readLine(); line != null; line = in.readLine()){
                 String output = handleCommand(line);
                 if(output != null){
-                    out.println(output);
+                    if(output.equals("X") || output.equals("O")){
+                        out.println("WINNER: " + output);
+                        serverSocket.close();
+                        in.close();
+                        out.close();
+                    }
+                    else if(output.equals("BYE")){
+                        out.println(output);
+                        serverSocket.close();
+                        in.close();
+                        out.close();
+                    }
+                    else {
+                        out.println(output);
+                    }
                 }
             }
         }
@@ -57,19 +71,24 @@ public class TicTacToeServer {
         }
     }
 
-    private String handleCommand(String input){
+    private String handleCommand(String input) throws IOException{
         String[] tokens = input.split(" ");
-
+        System.out.println(input);
         if(tokens[0].equals("look")){
             return b.toString();
         }
-        int xCoord = Integer.parseInt(tokens[1]);
-        int yCoord = Integer.parseInt(tokens[2]);
+        if(tokens[0].equals("bye")){
+            return "BYE";
+        }
 
         if(tokens[0].equals("x")){
-           return b.putX(xCoord, yCoord);
+            int xCoord = Integer.parseInt(tokens[1]);
+            int yCoord = Integer.parseInt(tokens[2]);
+            return b.putX(xCoord, yCoord);
         }
         if(tokens[0].equals("o")){
+            int xCoord = Integer.parseInt(tokens[1]);
+            int yCoord = Integer.parseInt(tokens[2]);
             return b.putO(xCoord, yCoord);
         }
 
@@ -86,7 +105,7 @@ public class TicTacToeServer {
 
     public static void runServer(int sizeX, int sizeY, int port) throws IOException{
         b = new Board(sizeX, sizeY);
-        TicTacToeServer server = new TicTacToeServer(4458);
+        TicTacToeServer server = new TicTacToeServer(5555);
         server.serve();
 
     }
